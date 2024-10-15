@@ -1,0 +1,176 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Container from "@components/Container.astro";
+import { dateRange } from "@lib/utils";
+import { SITE, HOME, SOCIALS } from "@consts";
+import ArrowCard from "@components/ArrowCard.astro";
+import Link from "@components/Link.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import Resume from "/LATEST_ADITYA_CV.pdf";
+import HomePageJSONLD from "@components/HomePageJSONLD.astro";
+
+const blog = (await getCollection("blog"))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
+
+const projects: CollectionEntry<"projects">[] = (
+  await getCollection("projects")
+)
+  .filter((project) => !project.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, SITE.NUM_PROJECTS_ON_HOMEPAGE);
+
+
+const allwork = (await getCollection("work"))
+  .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf())
+  .slice(0,SITE.NUM_WORKS_ON_HOMEPAGE);
+
+const work = await Promise.all(
+  allwork.map(async (item) => {
+    const { Content } = await item.render();
+    return { ...item, Content };
+  })
+);
+
+
+---
+
+<Layout title={HOME.TITLE} description={HOME.DESCRIPTION}>
+  <HomePageJSONLD slot="head" blogs={blog} works={work} projects={projects} />
+  <Container>
+    <h1 class="animate font-semibold text-black dark:text-white">
+    Hello Aditya here 😊,
+    </h1>
+    <div class="space-y-16">
+      <section>
+        <article class="space-y-4">
+          <span class="animate">
+            <p>
+              Welcome! My name is Aditya Singh Rawat, and I am a passionate full-stack developer from New Delhi, India. This website serves as a showcase of my skills, experience, and projects.
+            </p>
+            <p>
+              I am currently pursuing a Bachelor's degree in Computer Applications from Maharaja Surajmal Institute, Janakpuri, Delhi, and have a strong foundation in programming languages like TypeScript, Java, C/C++, and data structures and algorithms.
+            </p>
+          </span>
+          <span class="animate">
+            <p>
+              With experience in web development technologies such as HTML, CSS, JavaScript, MongoDB, Node.js, Express.js, React.js, and more, I have worked on various projects, including a digital visiting card generator, a library management system, and an anonymous forum application.
+            </p>
+            <p>
+              Feel free to explore my portfolio, check out my projects, and get in touch with me for potential collaborations or opportunities. You can find my contact information and links to my GitHub and LinkedIn profiles below.
+            </p>
+          </span>
+        </article>
+        <a href={Resume} download="Aditya_Singh_Rawat_Resume.pdf">
+          <button  
+          id="dark-theme-button"
+          aria-label="Dark theme"
+          class="cursor-pointer inline-flex gap-1 items-center justify-center rounded border border-black/15 hover:bg-black/5 focus-visible:bg-black/5 dark:border-white/20 dark:hover:bg-white/5 dark:focus-visible:bg-white/5 px-2 py-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256"><path fill="currentColor" d="M222 144v64a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6v-64a6 6 0 0 1 12 0v58h164v-58a6 6 0 0 1 12 0m-98.24 4.24a6 6 0 0 0 8.48 0l40-40a6 6 0 0 0-8.48-8.48L134 129.51V32a6 6 0 0 0-12 0v97.51L92.24 99.76a6 6 0 0 0-8.48 8.48Z"/></svg>
+          <span>Resume</span>
+        </button>
+        </a>
+      </section>
+
+      <section class="animate space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-y-2">
+          <h2 class="font-semibold text-black dark:text-white">Latest posts</h2>
+          <Link href="/blog"> See all posts </Link>
+        </div>
+        <ul class="not-prose flex flex-col gap-4">
+          {
+            blog.map((post) => (
+              <li>
+                <ArrowCard entry={post} />
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+
+      <section class="animate space-y-6">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Work Experience
+          </h5>
+          <Link href="/work">
+            See all work
+          </Link>
+        </div>
+        <ul class="flex flex-col space-y-4">
+          {work.map(entry => (
+            <li>
+              <div class="text-sm opacity-75">
+                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
+              </div>
+              <div class="font-semibold text-black dark:text-white">
+                {entry.data.company}
+              </div>
+              <div class="text-sm opacity-75">
+                {entry.data.role}
+              </div>
+              <article>
+                <entry.Content />
+              </article>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="animate space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-y-2">
+          <h2 class="font-semibold text-black dark:text-white">
+            Recent projects
+          </h2>
+          <Link href="/projects"> See all projects </Link>
+        </div>
+        <ul class="not-prose flex flex-col gap-4">
+          {
+            projects.map((project) => (
+              <li>
+                <ArrowCard entry={project} />
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="animate space-y-4">
+        <h2 class="font-semibold text-black dark:text-white">Let's Connect</h2>
+        <article>
+          <p>
+            If you want to get in touch with me about something or just to say
+            hi, reach out on social media or send me an email.
+          </p>
+        </article>
+        <ul class="not-prose flex flex-wrap gap-2">
+          {
+            SOCIALS.map((SOCIAL) => (
+              <li class="flex gap-x-2 text-nowrap">
+                <Link
+                  href={SOCIAL.HREF}
+                  external
+                  aria-label={`${SITE.TITLE} on ${SOCIAL.NAME}`}
+                >
+                  {SOCIAL.NAME}
+                </Link>
+                {"/"}
+              </li>
+            ))
+          }
+          <li class="line-clamp-1">
+            <Link
+              href={`mailto:${SITE.EMAIL}`}
+              aria-label={`Email ${SITE.TITLE}`}
+            >
+              {SITE.EMAIL}
+            </Link>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </Container>
+</Layout>
